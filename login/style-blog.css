@@ -23,6 +23,12 @@ body {
     flex-direction: column; /* Stacks the images vertically */
     align-items: center; /* Centers the images horizontally within the container */
     gap: 10px; /* Optional: Adds 10px of space between the images */
+    font-size: small;
+    font-family: monospace;
+}
+
+.pic-location img {
+  border-radius: 10px;
 }
 
 .blog-post-border {
