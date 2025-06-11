@@ -255,28 +255,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
             font-family: 'Orbitron', sans-serif;
             font-size: 1.1rem;
         }
-        .load-controls { display: flex; flex-direction: column; }
-        .load-btn {
-            background: var(--button-off);
-            border: 1px solid #000;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #graph-container {
+        #graph-wrapper {
             flex-grow: 1;
             display: flex;
-            gap: 1rem;
             margin: 0.5rem 0;
+            gap: 0.5rem;
+        }
+        .graph-scale {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: var(--text-dark);
+        }
+        .graph-scale.left { text-align: left; color: var(--accent-yellow); }
+        .graph-scale.right { text-align: right; }
+        
+        #graph-container {
+            flex-grow: 1;
             background: #000;
             border-radius: 5px;
         }
@@ -376,8 +375,12 @@
                 <span class="label" style="color: var(--accent-blue);">LOAD:</span>
                 <span id="power-load">1005 KW</span>
             </div>
-            <div id="graph-container">
-                <canvas id="history-graph"></canvas>
+            <div id="graph-wrapper">
+                 <div id="temp-scale" class="graph-scale left"></div>
+                 <div id="graph-container">
+                    <canvas id="history-graph"></canvas>
+                 </div>
+                 <div id="power-scale" class="graph-scale right"></div>
             </div>
             <div class="power-info mt-2">
                 <span class="label" style="color: var(--accent-green);">OUTPUT:</span>
@@ -408,21 +411,21 @@
         class Reactor {
             state;
             // --- Tuned Physics Constants ---
-            MAX_TEMP = 20000;
-            MAX_POWER_OUTPUT = 10000;
+            MAX_TEMP = 10000;
+            MAX_POWER_OUTPUT = 5000;
             MELTDOWN_TEMP = 9000;
             OVERHEAT_TEMP = 6000;
             LOW_TEMP = 2000;
             OPTIMAL_TEMP = 5000; // Target for auto-controller
             FUEL_CONSUMPTION_RATE = 0.05;
-            HEAT_GENERATION_RATE = 1200; // Retuned for stable output
+            HEAT_GENERATION_RATE = 1000; // Retuned for stable output
             AMBIENT_TEMP_DISSIPATION = 0.05;
             TURBINE_POWER_FACTOR = 1.2;
             LOW_FUEL_THRESHOLD = 20;
 
             constructor() {
                 // --- Calculate initial stable state for 1000 KW load ---
-                const initialLoad = 5000;
+                const initialLoad = 1000;
                 const initialTemp = this.OPTIMAL_TEMP;
                 const initialTurbine = initialLoad / (initialTemp / 100 * (initialTemp/this.OVERHEAT_TEMP) * this.TURBINE_POWER_FACTOR);
                 const heatConsumed = (initialLoad / this.TURBINE_POWER_FACTOR) + (initialTemp * this.AMBIENT_TEMP_DISSIPATION);
@@ -526,6 +529,8 @@
                 powerLoad: document.getElementById('power-load'),
                 powerOutput: document.getElementById('power-output'),
                 graphCanvas: document.getElementById('history-graph'),
+                tempScale: document.getElementById('temp-scale'),
+                powerScale: document.getElementById('power-scale'),
                 criticalHeat: document.getElementById('critical-heat'),
                 criticalOutput: document.getElementById('critical-output'),
                 statusLights: {
@@ -574,11 +579,32 @@
             createTicks(document.getElementById('fission-rate-gauge'));
             createTicks(document.getElementById('turbine-output-gauge'));
 
+            function populateScales() {
+                const tempScaleDiv = ui.tempScale;
+                const powerScaleDiv = ui.powerScale;
+                tempScaleDiv.innerHTML = '';
+                powerScaleDiv.innerHTML = '';
+                
+                const numLabels = 5;
+                for(let i = 0; i < numLabels; i++) {
+                    // Temperature Scale (left)
+                    const tempLabel = document.createElement('div');
+                    const tempValue = reactor.MAX_TEMP * (1 - (i / (numLabels - 1)));
+                    tempLabel.textContent = `${(tempValue/1000).toFixed(0)}k°C`;
+                    tempScaleDiv.appendChild(tempLabel);
+
+                    // Power Scale (right)
+                    const powerLabel = document.createElement('div');
+                    const powerValue = reactor.MAX_POWER_OUTPUT * (1 - (i / (numLabels - 1)));
+                    powerLabel.textContent = `${(powerValue/1000).toFixed(1)}kW`;
+                    powerScaleDiv.appendChild(powerLabel);
+                }
+            }
+            populateScales();
+
+
             ui.powerButton.addEventListener('click', () => reactor.getState().isPoweredOn ? reactor.powerOff() : reactor.powerOn());
             ui.autoSwitch.addEventListener('click', () => reactor.toggleAutoControl());
-            // Manual load controls removed in favor of automatic fluctuation
-            // ui.loadPlus.addEventListener('click', () => reactor.setPowerLoad(reactor.getState().powerLoad + 100));
-            // ui.loadMinus.addEventListener('click', () => reactor.setPowerLoad(reactor.getState().powerLoad - 100));
             ui.fissionSlider.addEventListener('input', (e) => reactor.setFissionRate(e.target.value));
             ui.turbineSlider.addEventListener('input', (e) => reactor.setTurbineOutput(e.target.value));
             ui.statusLights[ReactorStatus.Meltdown].addEventListener('click', () => reactor.scram());
@@ -589,12 +615,11 @@
                 const deltaTime = (currentTime - lastTime) / 1000;
                 lastTime = currentTime;
                 
-                // Fluctuate load unpredictably
                 const currentLoad = reactor.getState().powerLoad;
-                const loadDelta = Math.floor(Math.random() * 25) - 12; // -12 to +12
+                const loadDelta = Math.floor(Math.random() * 25) - 12;
                 let newLoad = currentLoad + loadDelta;
-                if (newLoad > 8000) newLoad = 5000;
-                if (newLoad < 1000) newLoad = 5000;
+                if (newLoad > 3000) newLoad = 3000;
+                if (newLoad < 800) newLoad = 1000;
                 reactor.setPowerLoad(newLoad);
 
                 reactor.update(deltaTime || 0);
@@ -629,7 +654,6 @@
                 ui.criticalHeat.classList.toggle('active', isCritHeat);
                 ui.criticalOutput.classList.toggle('active', isCritOutput);
 
-                // Add data point to graph history
                 graphHistory.push({
                     temp: state.temperature,
                     load: state.powerLoad,
@@ -647,17 +671,6 @@
                 canvas.height = canvas.clientHeight;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw grid
-                ctx.strokeStyle = '#223333';
-                ctx.lineWidth = 0.5;
-                for (let i = 1; i < 4; i++) {
-                    const y = (canvas.height / 4) * i;
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
 
                 if (graphHistory.length < 2) return;
 
@@ -678,7 +691,6 @@
                     ctx.stroke();
                 }
                 
-                // Draw lines for each metric
                 drawLine('temp', 'red', reactor.MAX_TEMP);
                 drawLine('load', 'blue', reactor.MAX_POWER_OUTPUT);
                 drawLine('output', 'green', reactor.MAX_POWER_OUTPUT);
