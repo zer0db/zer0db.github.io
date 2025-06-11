@@ -108,8 +108,8 @@
 
             constructor() {
                 this.state = {
-                    isPoweredOn: true, isAutoControl: true, temperature: 0, fissionRate: 60, turbineOutput: 60,
-                    powerOutput: 1000, powerLoad: 1000, fuelRod: { condition: 100 }, status: ReactorStatus.None,
+                    isPoweredOn: false, isAutoControl: true, temperature: 0, fissionRate: 0, turbineOutput: 0,
+                    powerOutput: 0, powerLoad: 1000, fuelRod: { condition: 100 }, status: ReactorStatus.None,
                 };
             }
 
@@ -150,11 +150,13 @@
             runAutoControl() {
                 const targetTemp = (this.state.powerLoad / this.MAX_POWER_OUTPUT) * this.OVERHEAT_TEMP * 1.1;
                 const tempError = targetTemp - this.state.temperature;
-                this.state.fissionRate += tempError * 0.001;
+                // Increased responsiveness
+                this.state.fissionRate += tempError * 0.005; 
                 const powerError = this.state.powerLoad - this.state.powerOutput;
-                this.state.turbineOutput += powerError * 0.0005;
-                this.state.fissionRate = Math.max(30, Math.min(80, this.state.fissionRate));
-                this.state.turbineOutput = Math.max(30, Math.min(80, this.state.turbineOutput));
+                // Increased responsiveness
+                this.state.turbineOutput += powerError * 0.0025; 
+                this.state.fissionRate = Math.max(0, Math.min(100, this.state.fissionRate));
+                this.state.turbineOutput = Math.max(0, Math.min(100, this.state.turbineOutput));
             }
 
             updateStatusFlags() {
