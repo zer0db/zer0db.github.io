@@ -372,8 +372,8 @@
         <!-- Status -->
         <div class="status-display">
             <div class="power-info">
-                <span class="label" style="color: var(--accent-blue);">LOAD:</span>
-                <span id="power-load">1005 KW</span>
+                <span class="label" style="color: yellow;">TEMP:</span>
+                <span id="temp-value">0°C</span>
             </div>
             <div id="graph-wrapper">
                  <div id="temp-scale" class="graph-scale left"></div>
@@ -381,6 +381,10 @@
                     <canvas id="history-graph"></canvas>
                  </div>
                  <div id="power-scale" class="graph-scale right"></div>
+            </div>
+            <div class="power-info mt-2">
+                <span class="label" style="color: var(--accent-blue);">LOAD:</span>
+                <span id="power-load">1005 KW</span>
             </div>
             <div class="power-info mt-2">
                 <span class="label" style="color: var(--accent-green);">OUTPUT:</span>
@@ -531,11 +535,11 @@
                 turbineNeedle: document.querySelector('#turbine-output-gauge .gauge-needle'),
                 turbineValue: document.getElementById('turbine-output-value'),
                 turbineSlider: document.getElementById('turbine-output-slider'),
+                tempValue: document.getElementById('temp-value'),
                 powerLoad: document.getElementById('power-load'),
                 powerOutput: document.getElementById('power-output'),
                 graphCanvas: document.getElementById('history-graph'),
                 tempScale: document.getElementById('temp-scale'),
-                temperature: document.getElementById('temperature'),
                 powerScale: document.getElementById('power-scale'),
                 criticalHeat: document.getElementById('critical-heat'),
                 criticalOutput: document.getElementById('critical-output'),
@@ -625,7 +629,7 @@
                 const loadDelta = Math.floor(Math.random() * 25) - 12;
                 let newLoad = currentLoad + loadDelta;
                 if (newLoad > 3000) newLoad = 3000;
-                if (newLoad < 500) newLoad = 500;
+                if (newLoad < 800) newLoad = 800;
                 reactor.setPowerLoad(newLoad);
 
                 reactor.update(deltaTime || 0);
@@ -648,6 +652,7 @@
                 ui.turbineSlider.value = state.turbineOutput;
                 ui.turbineSlider.disabled = state.isAutoControl;
 
+                ui.tempValue.textContent = `${state.temperature.toFixed(0)}°C`;
                 ui.powerLoad.textContent = `${state.powerLoad.toFixed(0)} KW`;
                 ui.powerOutput.textContent = `${state.powerOutput.toFixed(0)} KW`;
 
@@ -696,7 +701,7 @@
                     }
                     ctx.stroke();
                 }
-                
+
                 drawLine('temp', 'yellow', reactor.MAX_TEMP);
                 drawLine('load', 'blue', reactor.MAX_POWER_OUTPUT);
                 drawLine('output', 'green', reactor.MAX_POWER_OUTPUT);
