@@ -429,21 +429,37 @@
             LOW_TEMP = 2000;
             OPTIMAL_TEMP = 5000; // Target for auto-controller
             FUEL_CONSUMPTION_RATE = 0.05;
-            HEAT_GENERATION_RATE = 80; // More balanced heat generation
+            HEAT_GENERATION_RATE = 1200; // Retuned for stable output
             AMBIENT_TEMP_DISSIPATION = 0.05;
             TURBINE_POWER_FACTOR = 1.2;
             LOW_FUEL_THRESHOLD = 20;
 
             constructor() {
-                // Start in a cold, dark state
+                // --- Calculate initial stable state for 1000 KW load ---
+                const initialLoad = 1000;
+                const initialTemp = this.OPTIMAL_TEMP;
+
+                // Calculate turbine setting to produce initialLoad at optimal temp
+                // PowerOutput = (Temp * (Turbine/100) * TempEfficiency) * PowerFactor
+                // 1000 = (5000 * (Turbine/100) * (5000/6000)) * 1.2
+                // 1000 = (Turbine * 50 * 0.8333) * 1.2
+                // 1000 = Turbine * 50
+                const initialTurbine = initialLoad / (initialTemp / 100 * (initialTemp/this.OVERHEAT_TEMP) * this.TURBINE_POWER_FACTOR);
+
+                // Calculate fission rate to maintain temp under this load
+                // HeatGen = HeatConsumed
+                // (Fission/100)*HeatRate = (Power/PowerFactor) + (Temp * AmbientDissipation)
+                const heatConsumed = (initialLoad / this.TURBINE_POWER_FACTOR) + (initialTemp * this.AMBIENT_TEMP_DISSIPATION);
+                const initialFission = (heatConsumed * 100) / this.HEAT_GENERATION_RATE;
+
                 this.state = {
-                    isPoweredOn: false,
+                    isPoweredOn: true,
                     isAutoControl: true,
-                    temperature: 0,
-                    fissionRate: 0,
-                    turbineOutput: 0,
-                    powerOutput: 0,
-                    powerLoad: 1000,
+                    temperature: initialTemp,
+                    fissionRate: initialFission,
+                    turbineOutput: initialTurbine,
+                    powerOutput: initialLoad,
+                    powerLoad: initialLoad,
                     fuelRod: { condition: 100 },
                     status: ReactorStatus.None,
                 };
@@ -511,8 +527,8 @@
                     this.addStatus(ReactorStatus.FuelLow);
                 }
             }
-            powerOn = () => { this.state.isPoweredOn = true; if (this.hasStatus(ReactorStatus.Scram)) this.state.status &= ~ReactorStatus.Scram; };
-            powerOff = () => this.state.isPoweredOn = false;
+            powerOn = () => { if (!this.state.isPoweredOn) { this.state.isPoweredOn = true; if (this.hasStatus(ReactorStatus.Scram)) this.state.status &= ~ReactorStatus.Scram; }};
+            powerOff = () => { if (this.state.isPoweredOn) { this.state.isPoweredOn = false; }};
             toggleAutoControl = () => this.state.isAutoControl = !this.state.isAutoControl;
             setFissionRate = (rate) => { if (!this.state.isAutoControl) this.state.fissionRate = Math.max(0, Math.min(100, parseFloat(rate))); };
             setTurbineOutput = (rate) => { if (!this.state.isAutoControl) this.state.turbineOutput = Math.max(0, Math.min(100, parseFloat(rate))); };
@@ -602,6 +618,7 @@
 
             let lastTime = 0;
             function gameLoop(currentTime) {
+                if (!lastTime) lastTime = currentTime;
                 const deltaTime = (currentTime - lastTime) / 1000;
                 lastTime = currentTime;
                 reactor.update(deltaTime || 0);
@@ -638,7 +655,9 @@
                 ui.criticalHeat.classList.toggle('active', isCritHeat);
                 ui.criticalOutput.classList.toggle('active', isCritOutput);
             }
-
+            
+            // Initial UI sync
+            updateUI(reactor.getState());
             requestAnimationFrame(gameLoop);
         });
     </script>
