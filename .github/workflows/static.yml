@@ -22,10 +22,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Pull, build, and upload artifact for wiki contents
-  wiki:
+  build-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Clone wiki repo
         uses: GuillaumeFalourd/clone-github-repo-action@v2.1
         with:
@@ -40,38 +44,14 @@ jobs:
         with:
           mdbook-version: '0.4.52'
       - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ./wiki/${{ env.DIRNAME }}/
-      - name: Upload wiki artifact
-        id: upload-wiki-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: "wiki"
-          path: ./wiki
-          retention-days: 1
-          overwrite: true
-      - run: ls wiki/
-      - name: Set artifact id envar
-        run: echo "ART_ID=${{ steps.artifact-upload-step.outputs.artifact-id }}" >> $GITHUB_ENV
-  # Prep build dir and deploy static site
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: wiki
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Download wiki artifact
-        uses: actions/download-artifact@v4
-        with: 
-          artifact-ids: ${{ env.ART_ID }}
-          path: build/
       - name: Delete .gitkeep
         run: rm build/.gitkeep
       - name: Super secret dir name
         run: sed -i 's/some-long-secret-string/${{ env.DIRNAME }}/g' static/wiki/index.html
-      - name: Copy static files to build
-        run: cp -r static/* build/
+      - name: Copy files to build
+        run: |
+          cp -r static/* build/
+          cp -r wiki/ build/
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
