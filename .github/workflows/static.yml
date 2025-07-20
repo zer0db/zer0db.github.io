@@ -48,6 +48,7 @@ jobs:
           path: wiki/
           retention-days: 1
           overwrite: true
+      - run: ls wiki/
       - name: Set artifact id envar
         run: echo "ART_ID=${{ steps.artifact-upload-step.outputs.artifact-id }}" >> $GITHUB_ENV
   # Prep build dir and deploy static site
@@ -63,7 +64,7 @@ jobs:
       - name: Download wiki artifact
         uses: actions/download-artifact@v4
         with: 
-          id: ${{ env.ART_ID }}
+          artifact-ids: ${{ env.ART_ID }}
           path: build/
       - name: Delete .gitkeep
         run: rm build/.gitkeep
