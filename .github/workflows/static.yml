@@ -35,7 +35,6 @@ jobs:
       - run: mkdir -p wiki
       - name: Set Dirname
         run: echo "DIRNAME=$(date | md5sum | awk '{print $1}')" >> $GITHUB_ENV # This is workflow scoped
-      - run: cd 
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
@@ -49,11 +48,14 @@ jobs:
           path: wiki/
           retention-days: 1
           overwrite: true
+      - name: Set artifact id envar
+        run: echo "ART_ID=${{ steps.artifact-upload-step.outputs.artifact-id }}" >> $GITHUB_ENV
   # Prep build dir and deploy static site
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      ART_ID: ${{ env.ART_ID }}
     runs-on: ubuntu-latest
     needs: wiki
     steps:
@@ -62,8 +64,8 @@ jobs:
       - name: Download wiki artifact
         uses: actions/download-artifact@v4
         with: 
-          name: "wiki"
-          path: build/wiki/${{ env.DIRNAME }}
+          id: ${{ env.ART_ID }}
+          path: build/
       - name: Delete .gitkeep
         run: rm build/.gitkeep
       - name: Super secret dir name
