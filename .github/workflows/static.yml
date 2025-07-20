@@ -43,7 +43,7 @@ jobs:
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: '0.4.52'
-      - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ./wiki/${{ env.DIRNAME }}/
+      - run: mdbook build ./${{ secrets.WIKI_REPO_NAME }} --dest-dir ./wiki/${{ env.DIRNAME }}/
       - name: Delete .gitkeep
         run: rm build/.gitkeep
       - name: Super secret dir name
