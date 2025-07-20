@@ -22,7 +22,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  # Pull, build, and upload artifact for wiki contents
+  wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone wiki repo
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.1
+        with:
+          owner: 'zer0db'
+          repository: ${{ secrets.WIKI_REPO_NAME }}
+          access-token: ${{ secrets.CI_PULL_PAT }}
+      - run: mkdir -p wiki
+      - run: cd ${{ secrets.WIKI_REPO_NAME }}
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '2.0.0'
+      - run: mdbook build . --dest-dir ${{ GITHUB_WORKSPACE }}/wiki
+      - name: Upload wiki artifact
+        id: upload-wiki-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "wiki"
+          path: wiki/
+          retention-days: 1
+          overwrite: true
   deploy:
     environment:
       name: github-pages
@@ -31,13 +55,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Super secret dir name
+        run: export DIRNAME=$(date | md5sum | awk '{print $1}') && sed -i 's/some-long-secret-string/$DIRNAME/g' static/wiki/index.html
+      - name: Copy static files to build
+        run: cp -r static/* build/
+      - name: Download wiki artifact
+        uses: actions/download-artifact@v4
+        with: 
+          name: "wiki"
+          path: build/wiki/${{ DIRNAME }}
+      - name: Delete .gitkeep
+        run: rm build/.gitkeep
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: 'build/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
