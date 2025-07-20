@@ -1,24 +1,31 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #534f4f;
+    display: flex; /* Re-enable flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
     min-height: 100vh;
     margin: 0;
     overflow: hidden;
 }
 
 .background-image {
-    position: relative; /* Establish positioning context for children */
+    position: relative; /* Keep this for positioning the login-container */
     background-image: url('cnc.png');
-    background-size: cover; /* Ensure the background image covers the entire div */
-    background-position: center; /* Center the background image */
-    width: 100vw; /* Make it take the full viewport width */
-    height: 100vh; /* Make it take the full viewport height */
+    background-size: 100% 100%; /* Make the background image fit the 1024x1024 div */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    background-position: center; /* Center the image within its own div */
+    color: #aaa;
+    width: 1024px; /* Fixed width */
+    height: 1024px; /* Fixed height */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Re-added box-shadow */
+    border-radius: 8px; /* Re-added border-radius */
 }
 
 .login-container {
-    position: absolute; /* Position relative to the .background-image */
-    bottom: 30px; /* Distance from the bottom edge */
-    right: 30px; /* Distance from the right edge */
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
     background-color: #222;
     color: #aaa;
     padding: 30px;
@@ -27,7 +34,6 @@ body {
     width: 300px;
     text-align: center;
 }
-
 
 h2 {
     margin-bottom: 20px;
@@ -51,7 +57,9 @@ h2 {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box; /* Include padding in width */
+    box-sizing: border-box;
+    background-color: #333;
+    color: #eee;
 }
 
 button[type="submit"] {
@@ -64,6 +72,7 @@ button[type="submit"] {
     font-size: 16px;
     width: 100%;
     margin-top: 10px;
+    transition: background-color 0.3s ease;
 }
 
 button[type="submit"]:hover {
