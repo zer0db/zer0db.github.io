@@ -55,8 +55,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    env:
-      ART_ID: ${{ env.ART_ID }}
     runs-on: ubuntu-latest
     needs: wiki
     steps:
