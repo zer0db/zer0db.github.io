@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with: 
           name: "wiki"
-          path: build/wiki/${{ DIRNAME }}
+          path: build/wiki/${{ env.DIRNAME }}
       - name: Delete .gitkeep
         run: rm build/.gitkeep
       - name: Super secret dir name
