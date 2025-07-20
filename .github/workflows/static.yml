@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "wiki"
-          path: wiki/
+          path: wiki/*
           retention-days: 1
           overwrite: true
       - run: ls wiki/
