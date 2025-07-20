@@ -51,9 +51,9 @@ jobs:
       - name: Copy files to build
         run: |
           cp -r static/* build/
-          cp -r wiki/ build/
+          cp -r ${{ secrets.WIKI_REPO_NAME }}/wiki/ build/
       - name: Validate build
-        run: ls -R 
+        run: ls -R build/
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
