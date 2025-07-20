@@ -1,28 +1,24 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #534f4f;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
     margin: 0;
+    overflow: hidden;
 }
 
 .background-image {
+    position: relative; /* Establish positioning context for children */
     background-image: url('cnc.png');
-    background-size: cover;
-    background-position: center;
-    color: #aaa;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
+    background-size: cover; /* Ensure the background image covers the entire div */
+    background-position: center; /* Center the background image */
+    width: 100vw; /* Make it take the full viewport width */
+    height: 100vh; /* Make it take the full viewport height */
 }
 
 .login-container {
-    position: absolute; /* Positions the container relative to its parent (.background-image) */
-    bottom: 20px; /* Adjust as needed for desired spacing from the bottom */
-    right: 20px; /* Adjust as needed for desired spacing from the right */
+    position: absolute; /* Position relative to the .background-image */
+    bottom: 30px; /* Distance from the bottom edge */
+    right: 30px; /* Distance from the right edge */
     background-color: #222;
     color: #aaa;
     padding: 30px;
