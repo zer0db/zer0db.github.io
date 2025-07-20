@@ -20,6 +20,9 @@ body {
 }
 
 .login-container {
+    position: absolute; /* Positions the container relative to its parent (.background-image) */
+    bottom: 20px; /* Adjust as needed for desired spacing from the bottom */
+    right: 20px; /* Adjust as needed for desired spacing from the right */
     background-color: #222;
     color: #aaa;
     padding: 30px;
