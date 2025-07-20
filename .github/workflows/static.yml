@@ -32,14 +32,14 @@ jobs:
           owner: 'zer0db'
           repository: ${{ secrets.WIKI_REPO_NAME }}
           access-token: ${{ secrets.CI_PULL_PAT }}
-      - run: mkdir -p wiki
       - name: Set Dirname
         run: echo "DIRNAME=$(date | md5sum | awk '{print $1}')" >> $GITHUB_ENV # This is workflow scoped
+      - run: mkdir -p wiki/${{ env.DIRNAME }}/
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: '0.4.52'
-      - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ${{ env.GITHUB_WORKSPACE}}/wiki/${{ env.DIRNAME }}
+      - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ${{ env.GITHUB_WORKSPACE}}/wiki/${{ env.DIRNAME }}/
       - name: Upload wiki artifact
         id: upload-wiki-artifact
         uses: actions/upload-artifact@v4
