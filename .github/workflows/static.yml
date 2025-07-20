@@ -39,13 +39,13 @@ jobs:
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: '0.4.52'
-      - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ${{ env.GITHUB_WORKSPACE}}/wiki/${{ env.DIRNAME }}/
+      - run: mdbook build ${{ secrets.WIKI_REPO_NAME }}/ --dest-dir ${{ env.GITHUB_WORKSPACE }}/wiki/${{ env.DIRNAME }}/
       - name: Upload wiki artifact
         id: upload-wiki-artifact
         uses: actions/upload-artifact@v4
         with:
           name: "wiki"
-          path: ${{ env.GITHUB_WORKSPACE}}/wiki/
+          path: ${{ env.GITHUB_WORKSPACE }}/wiki/
           retention-days: 1
           overwrite: true
       - name: Set artifact id envar
