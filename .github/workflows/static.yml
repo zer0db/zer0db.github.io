@@ -47,6 +47,7 @@ jobs:
           path: wiki/
           retention-days: 1
           overwrite: true
+  # Prep build dir and deploy static site
   deploy:
     environment:
       name: github-pages
