@@ -24,8 +24,8 @@ body {
 
 .login-container {
     position: absolute;
-    bottom: 30px;
-    right: 30px;
+    top: 300px;
+    left: 300px;
     background-color: #222;
     color: #aaa;
     padding: 30px;
