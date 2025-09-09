@@ -105,16 +105,16 @@
         class Reactor {
             state;
             // --- Tuned Physics Constants ---
-            MAX_TEMP = 10000;
+            MAX_TEMP = 1000;
             MAX_POWER_OUTPUT = 5000;
-            MELTDOWN_TEMP = 9000;
-            OVERHEAT_TEMP = 6000;
-            LOW_TEMP = 2000;
-            OPTIMAL_TEMP = 5000; // Target for auto-controller
+            MELTDOWN_TEMP = 900;
+            OVERHEAT_TEMP = 600;
+            LOW_TEMP = 200;
+            OPTIMAL_TEMP = 350; // Target for auto-controller
             FUEL_CONSUMPTION_RATE = 0.05;
-            HEAT_GENERATION_RATE = 1200; // Retuned for stable output
+            HEAT_GENERATION_RATE = 800; // Retuned for stable output
             AMBIENT_TEMP_DISSIPATION = 0.05;
-            TURBINE_POWER_FACTOR = 1.2;
+            TURBINE_POWER_FACTOR = 8;
             LOW_FUEL_THRESHOLD = 20;
 
             constructor() {
@@ -290,13 +290,14 @@
                     // Temperature Scale (left)
                     const tempLabel = document.createElement('div');
                     const tempValue = reactor.MAX_TEMP * (1 - (i / (numLabels - 1)));
-                    tempLabel.textContent = `${(tempValue/1000).toFixed(0)}k`;
+                    tempLabel.textContent = `${tempValue}C`;
+                    // tempLabel.textContent = `${(tempValue/1000).toFixed(2)}k`;
                     tempScaleDiv.appendChild(tempLabel);
 
                     // Power Scale (right)
                     const powerLabel = document.createElement('div');
                     const powerValue = reactor.MAX_POWER_OUTPUT * (1 - (i / (numLabels - 1)));
-                    powerLabel.textContent = `${(powerValue/1000).toFixed(1)}k`;
+                    powerLabel.textContent = `${(powerValue/1000).toFixed(1)}kW`;
                     powerScaleDiv.appendChild(powerLabel);
                 }
             }
