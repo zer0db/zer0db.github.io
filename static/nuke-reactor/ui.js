@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         powerLoad: document.getElementById('power-load'),
         powerOutput: document.getElementById('power-output'),
         graphCanvas: document.getElementById('history-graph'),
+        graphTooltip: document.getElementById('graph-tooltip'),
         tempScale: document.getElementById('temp-scale'),
         powerScale: document.getElementById('power-scale'),
         criticalHeat: document.getElementById('critical-heat'),
@@ -227,6 +228,29 @@ document.addEventListener('DOMContentLoaded', () => {
         drawLine('load', 'blue', reactor.MAX_POWER_OUTPUT);
         drawLine('output', 'green', reactor.MAX_POWER_OUTPUT);
     }
+    
+    // --- Tooltip Logic ---
+    ui.graphCanvas.addEventListener('mousemove', (e) => {
+        const rect = ui.graphCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const index = Math.floor((x / rect.width) * graphHistory.length);
+
+        if (index >= 0 && index < graphHistory.length) {
+            const dataPoint = graphHistory[index];
+            ui.graphTooltip.style.display = 'block';
+            ui.graphTooltip.style.left = `${x + 10}px`;
+            ui.graphTooltip.style.top = `${e.clientY - rect.top}px`;
+            ui.graphTooltip.innerHTML = `
+                Temp: ${dataPoint.temp.toFixed(0)}°C<br>
+                Load: ${dataPoint.load.toFixed(0)} KW<br>
+                Output: ${dataPoint.output.toFixed(0)} KW
+            `;
+        }
+    });
+
+    ui.graphCanvas.addEventListener('mouseout', () => {
+        ui.graphTooltip.style.display = 'none';
+    });
     
     // Initial UI sync
     updateUI(reactor.getState());

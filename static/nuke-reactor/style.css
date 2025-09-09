@@ -269,11 +269,25 @@ body {
     flex-grow: 1;
     background: #000;
     border-radius: 5px;
+    position: relative; /* Needed for tooltip positioning */
 }
 #history-graph {
     width: 100%;
     height: 100%;
 }
+
+.tooltip {
+    position: absolute;
+    display: none;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    pointer-events: none; /* Prevents the tooltip from interfering with mouse events */
+}
+
 
 /* --- Refactored Label Styles --- */
 .power-info .label.temp-label {
