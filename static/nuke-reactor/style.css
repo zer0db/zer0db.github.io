@@ -122,7 +122,7 @@ body {
 }
 .power-button.on {
     background-color: var(--button-on);
-    box-shadow: 0 0 15px var(--button-on);
+    animation: pulse-glow 2s infinite ease-in-out;
 }
 .power-button-label { font-size: 0.7rem; color: var(--text-dark); }
 
@@ -171,7 +171,7 @@ body {
     bottom: 0px;
     left: 99px;
     transform-origin: bottom center;
-    transition: transform 0.2s linear;
+    transition: transform 0.1s linear;
     z-index: 10;
 }
 .gauge-needle-hub {
@@ -362,4 +362,29 @@ body {
 
 @keyframes blink {
     50% { opacity: 0.5; }
+}
+
+/* --- Added Animations --- */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 15px var(--button-on); }
+    50% { box-shadow: 0 0 30px var(--button-on), 0 0 10px #ffc1c1; }
+    100% { box-shadow: 0 0 15px var(--button-on); }
+}
+
+@keyframes screen-shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.shake {
+    animation: screen-shake 0.5s infinite;
 }

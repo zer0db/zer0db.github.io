@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reactor = new Reactor();
 
     const ui = {
+        reactorPanel: document.querySelector('.reactor-panel'),
         powerButton: document.getElementById('power-button'),
         autoSwitch: document.getElementById('auto-control-switch'),
         fissionNeedle: document.querySelector('#fission-rate-gauge .gauge-needle'),
@@ -37,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const graphCtx = ui.graphCanvas.getContext('2d');
     let graphHistory = [];
     const MAX_HISTORY = 200;
+
+    // --- Wobble Animation Variables ---
+    let lastFissionRate = reactor.getState().fissionRate;
+    let lastTurbineOutput = reactor.getState().turbineOutput;
+    let fissionWobble = 0;
+    let turbineWobble = 0;
+    const WOBBLE_FACTOR = 10;
+    const WOBBLE_DECAY = 0.9;
 
     function createTicks(gaugeBody) {
         const ticksContainer = gaugeBody.querySelector('.gauge-ticks');
@@ -161,18 +170,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI(state) {
+        // --- Meltdown Shake ---
+        ui.reactorPanel.classList.toggle('shake', reactor.hasStatus(ReactorStatus.Meltdown));
+        
         ui.powerButton.classList.toggle('on', state.isPoweredOn);
         ui.autoSwitch.classList.toggle('on', state.isAutoControl);
 
-        ui.fissionNeedle.style.transform = `rotate(${-90 + state.fissionRate * 1.8}deg)`;
+        // --- Needle Wobble Logic ---
+        const fissionDelta = Math.abs(state.fissionRate - lastFissionRate);
+        if (fissionDelta > 0.5) fissionWobble += fissionDelta * WOBBLE_FACTOR;
+        const currentFissionWobble = (Math.random() - 0.5) * fissionWobble;
+        
+        const turbineDelta = Math.abs(state.turbineOutput - lastTurbineOutput);
+        if (turbineDelta > 0.5) turbineWobble += turbineDelta * WOBBLE_FACTOR;
+        const currentTurbineWobble = (Math.random() - 0.5) * turbineWobble;
+        
+        fissionWobble *= WOBBLE_DECAY;
+        turbineWobble *= WOBBLE_DECAY;
+        if (Math.abs(fissionWobble) < 0.1) fissionWobble = 0;
+        if (Math.abs(turbineWobble) < 0.1) turbineWobble = 0;
+
+        ui.fissionNeedle.style.transform = `rotate(${-90 + state.fissionRate * 1.8 + currentFissionWobble}deg)`;
         ui.fissionValue.textContent = state.fissionRate.toFixed(0);
         ui.fissionSlider.value = state.fissionRate;
         ui.fissionSlider.disabled = state.isAutoControl;
         
-        ui.turbineNeedle.style.transform = `rotate(${-90 + state.turbineOutput * 1.8}deg)`;
+        ui.turbineNeedle.style.transform = `rotate(${-90 + state.turbineOutput * 1.8 + currentTurbineWobble}deg)`;
         ui.turbineValue.textContent = state.turbineOutput.toFixed(0);
         ui.turbineSlider.value = state.turbineOutput;
         ui.turbineSlider.disabled = state.isAutoControl;
+
+        lastFissionRate = state.fissionRate;
+        lastTurbineOutput = state.turbineOutput;
 
         ui.tempValue.textContent = `${state.temperature.toFixed(0)}°C`;
         ui.powerLoad.textContent = `${state.powerLoad.toFixed(0)} KW`;
