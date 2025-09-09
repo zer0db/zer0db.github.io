@@ -12,8 +12,8 @@
 </head>
 <body>
 
-    <div class="reactor-panel">
-        <div class="panel-header">
+    <main class="reactor-panel">
+        <header class="panel-header">
             <div class="header-warnings">
                 <div id="critical-heat" class="warning-light">CRITICAL HEAT</div>
                 <div id="critical-output" class="warning-light">CRITICAL OUTPUT</div>
@@ -21,18 +21,18 @@
             <div class="main-controls">
                 <div class="control-switch">
                     <span class="switch-label">AUTOMATIC CONTROL</span>
-                    <div id="auto-control-switch" class="switch">
+                    <button id="auto-control-switch" class="switch">
                         <div class="switch-knob"></div>
-                    </div>
+                    </button>
                 </div>
                  <div class="control-switch">
                     <span class="power-button-label">POWER</span>
-                    <div id="power-button" class="power-button"></div>
+                    <button id="power-button" class="power-button"></button>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <div class="gauges-container">
+        <section class="gauges-container">
             <div class="gauge">
                 <div class="gauge-title">FISSION RATE</div>
                 <div id="fission-rate-gauge" class="gauge-body">
@@ -55,9 +55,9 @@
                  <div class="gauge-value-display"><span id="turbine-output-value">0</span>%</div>
                  <input type="range" id="turbine-output-slider" class="gauge-slider" min="0" max="100" step="1" value="0">
             </div>
-        </div>
+        </section>
 
-        <div class="status-display">
+        <section class="status-display">
             <div class="power-info">
                 <span class="label temp-label">TEMP:</span>
                 <span id="temp-value">0°C</span>
@@ -77,9 +77,9 @@
                 <span class="label output-label">OUTPUT:</span>
                 <span id="power-output">0 KW</span>
             </div>
-        </div>
+        </section>
 
-        <div class="warnings-grid">
+        <section class="warnings-grid">
             <div id="status-temp-low" class="status-light temp-low">TEMP LOW</div>
             <div id="status-output-low" class="status-light output-low">OUTPUT LOW</div>
             <div id="status-fuel-low" class="status-light fuel-low">FUEL LOW</div>
@@ -88,8 +88,8 @@
             <div id="status-output-high" class="status-light output-high">OUTPUT HIGH</div>
             <div id="status-fuel-out" class="status-light fuel-out">FUEL OUT</div>
             <div id="status-scram" class="status-light scram">SCRAM</div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script type="module">
         // --- The Reactor Simulation Class ---
