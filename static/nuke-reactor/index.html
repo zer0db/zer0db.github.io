@@ -13,7 +13,6 @@
 <body>
 
     <div class="reactor-panel">
-        <!-- Header -->
         <div class="panel-header">
             <div class="header-warnings">
                 <div id="critical-heat" class="warning-light">CRITICAL HEAT</div>
@@ -33,7 +32,6 @@
             </div>
         </div>
 
-        <!-- Gauges -->
         <div class="gauges-container">
             <div class="gauge">
                 <div class="gauge-title">FISSION RATE</div>
@@ -59,10 +57,9 @@
             </div>
         </div>
 
-        <!-- Status -->
         <div class="status-display">
             <div class="power-info">
-                <span class="label" style="color: yellow;">TEMP:</span>
+                <span class="label temp-label">TEMP:</span>
                 <span id="temp-value">0°C</span>
             </div>
             <div id="graph-wrapper">
@@ -73,16 +70,15 @@
                  <div id="power-scale" class="graph-scale right"></div>
             </div>
             <div class="power-info mt-2">
-                <span class="label" style="color: var(--accent-blue);">LOAD:</span>
+                <span class="label load-label">LOAD:</span>
                 <span id="power-load">1005 KW</span>
             </div>
             <div class="power-info mt-2">
-                <span class="label" style="color: var(--accent-green);">OUTPUT:</span>
+                <span class="label output-label">OUTPUT:</span>
                 <span id="power-output">0 KW</span>
             </div>
         </div>
 
-        <!-- Warning Lights -->
         <div class="warnings-grid">
             <div id="status-temp-low" class="status-light temp-low">TEMP LOW</div>
             <div id="status-output-low" class="status-light output-low">OUTPUT LOW</div>
