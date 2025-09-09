@@ -296,7 +296,7 @@
 
                     // Power Scale (right)
                     const powerLabel = document.createElement('div');
-                    const powerValue = reactor.MAX_POWER_OUTPUT * (1 - (i / (numLabels - 1)));
+                    const powerValue = (reactor.MAX_POWER_OUTPUT * 0.75) * (1 - (i / (numLabels - 1)));
                     powerLabel.textContent = `${(powerValue/1000).toFixed(1)}kW`;
                     powerScaleDiv.appendChild(powerLabel);
                 }
@@ -311,17 +311,59 @@
             ui.statusLights[ReactorStatus.Meltdown].addEventListener('click', () => reactor.scram());
 
             let lastTime = 0;
+            let baseLoad = reactor.getState().powerLoad; // Initialize with starting load
+
+            const spikeState = {
+                isActive: false,
+                startTime: 0,
+                duration: 5000, // 5 seconds in milliseconds
+                magnitude: 500, // 100 kW spike
+                nextSpikeTime: 0
+            };
+
+            function scheduleNextSpike(currentTime) {
+                const randomInterval = Math.random() * 5000 + 10000; // 10-15 seconds
+                spikeState.nextSpikeTime = currentTime + randomInterval;
+            }
+
+            // Schedule the first spike
+            scheduleNextSpike(performance.now());
+
             function gameLoop(currentTime) {
                 if (!lastTime) lastTime = currentTime;
                 const deltaTime = (currentTime - lastTime) / 1000;
                 lastTime = currentTime;
                 
-                const currentLoad = reactor.getState().powerLoad;
+                // --- Baseline Load Logic (Random Walk) ---
                 const loadDelta = Math.floor(Math.random() * 25) - 12;
-                let newLoad = currentLoad + loadDelta;
-                if (newLoad > 1200) newLoad = 1100;
-                if (newLoad < 750) newLoad = 800;
-                reactor.setPowerLoad(newLoad);
+                baseLoad += loadDelta;
+                if (baseLoad > 2200) baseLoad = 2100;
+                if (baseLoad < 750) baseLoad = 800;
+                
+                // --- Spike Event Logic ---
+                let spikeValue = 0;
+
+                // Trigger a new spike if it's time
+                if (!spikeState.isActive && currentTime >= spikeState.nextSpikeTime) {
+                    spikeState.isActive = true;
+                    spikeState.startTime = currentTime;
+                    scheduleNextSpike(currentTime);
+                }
+
+                // If a spike is active, calculate its current value
+                if (spikeState.isActive) {
+                    const elapsed = currentTime - spikeState.startTime;
+                    if (elapsed >= spikeState.duration) {
+                        spikeState.isActive = false;
+                    } else {
+                        // Linear decay from magnitude to 0 over the duration
+                        const decayFactor = 1 - (elapsed / spikeState.duration);
+                        spikeValue = spikeState.magnitude * decayFactor;
+                    }
+                }
+                
+                const finalLoad = baseLoad + spikeValue;
+                reactor.setPowerLoad(finalLoad);
 
                 reactor.update(deltaTime || 0);
                 updateUI(reactor.getState());
