@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Power Scale (right)
             const powerLabel = document.createElement('div');
             const powerValue = (reactor.MAX_POWER_OUTPUT * 0.75) * (1 - (i / (numLabels - 1)));
-            powerLabel.textContent = `${(powerValue/1000).toFixed(1)}kW`;
+            powerLabel.textContent = `${(powerValue/1000).toFixed(1)}MW`;
             powerScaleDiv.appendChild(powerLabel);
         }
     }
