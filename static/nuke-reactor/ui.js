@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isActive: false,
         startTime: 0,
         duration: 5000, // 5 seconds in milliseconds
-        magnitude: 500, // 100 kW spike
+        magnitude: 1000, // 1000 kW spike
         nextSpikeTime: 0
     };
 
